@@ -3,22 +3,39 @@ cimport numpy as np
 
 ctypedef np.float64_t DTYPE_t
 
-cpdef accum(f, np.ndarray[DTYPE_t, ndim=1] x, np.ndarray[DTYPE_t, ndim=1] t):
+cpdef accum(f, np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
 
     cdef int m, N, M
     cdef np.ndarray[DTYPE_t, ndim=2] X
+    cdef np.ndarray[DTYPE_t, ndim=1] x
     cdef np.ndarray[DTYPE_t, ndim=1] dxdt
+    cdef double dt, tcur, tlast, *px, *pt, *pdxdt
 
-    N = len(x)
+    N = len(x0)
     M = len(t)
+
     X = np.zeros((M, N), float)
+    x = np.zeros(N, float)
     dxdt = np.zeros(N, float)
 
-    X[0, :] = x
+    px = <double*>x.data
+    pt = <double*>t.data
+    pdxdt = <double*>dxdt.data
 
+    # Pre-loop setup
+    for n in range(N):
+        X[0, n] = px[n] = x0[n]
+    tlast = t[0]
+
+    # Main loop
     for m in range(1, M):
-        func2(<double*>x.data, <double>t[m], <double*>dxdt.data)
-        X[m, :] = x = x + dxdt * (t[m] - t[m-1])
+        tcur = pt[m]
+        dt = tcur - tlast
+        func2(px, tlast, pdxdt)
+        for n in range(N):
+            x[n] += pdxdt[n] * dt
+            X[m, n] = x[n]
+        tlast = tcur
     return X
 
 cdef func2(double* x, double t, double* dxdt):

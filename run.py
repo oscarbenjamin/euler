@@ -3,6 +3,7 @@
 from __future__ import division
 
 import timeit
+import sys
 
 from pylab import *
 
@@ -21,10 +22,17 @@ statements = [
     'algos2.accum(algos2.func, x0, t)',
 ]
 
-REPEAT = 20
-for stmt in statements:
-    result = timeit.timeit(stmt, setup, number=REPEAT)
-    print 'stmt: {0}  t: {1}'.format(stmt, result / REPEAT)
+args = sys.argv[1:]
 
-#plot(t, X)
-#show()
+if not args:
+    REPEAT = 20
+    for stmt in statements:
+        result = timeit.timeit(stmt, setup, number=REPEAT)
+        usecs = int(1e6 * result / REPEAT)
+        print 'stmt: {0}  t: {1} usecs'.format(stmt, usecs)
+elif len(args) == 1:
+    stmt = statements[int(args[0])]
+    print stmt
+    X = eval(stmt)
+    plot(t, X)
+    show()
