@@ -20,11 +20,8 @@ from __main__ import (algos1, algos2, algos3, algos4, algos5, algos6, algos7,
 
 statements = [
     'algos1.accum(algos1.func, x0, t)',
-    'algos1.accum(algos2.func, x0, t)',
-    'algos2.accum(algos1.func, x0, t)',
     'algos2.accum(algos2.func, x0, t)',
-    'algos3.accum(algos1.func, x0, t)',
-    'algos3.accum(algos2.func, x0, t)',
+    'algos3.accum(algos3.func, x0, t)',
     'algos4.accum(x0, t)',
     'algos5.accum(x0, t)',
     'algos6.accum(x0, t)',
@@ -48,7 +45,7 @@ if not args:
 
 # Plot the results from executing a particular statement
 elif len(args) == 1:
-    stmt = statements[int(args[0]) + 1]
+    stmt = statements[int(args[0]) - 1]
     print stmt
     X = eval(stmt)
     plot(t, X)
