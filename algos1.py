@@ -1,9 +1,6 @@
 
 import numpy as np
 
-def algo(f, x, t, dt):
-    return x + f(x, t) * dt
-
 def accum(f, x, t):
     X = np.zeros((len(t), len(x)), float)
     dxdt = np.zeros(len(x), float)

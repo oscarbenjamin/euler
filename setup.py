@@ -6,6 +6,7 @@ import numpy
 
 ext_modules = [
     Extension('algos2', ['algos2.pyx'], include_dirs=[numpy.get_include()]),
+    Extension('algos3', ['algos3.pyx'], include_dirs=[numpy.get_include()]),
 ]
 
 setup(
