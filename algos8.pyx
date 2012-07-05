@@ -14,7 +14,7 @@ cpdef accum(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
     cdef np.ndarray[DTYPE_t, ndim=2] X
     cdef np.ndarray[DTYPE_t, ndim=1] x
     cdef np.ndarray[DTYPE_t, ndim=1] dxdt
-    cdef double dt, tcur, tlast, *px, *pt, *pdxdt
+    cdef double dt, tcur, tlast, *px, *pt, *pdxdt, *pX
 
     N = len(x0)
     M = len(t)
@@ -26,11 +26,12 @@ cpdef accum(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
     px = <double*>x.data
     pt = <double*>t.data
     pdxdt = <double*>dxdt.data
+    pX = <double*>X.data
 
     # Pre-loop setup
     for n in range(N):
-        X[0, n] = px[n] = x0[n]
-    tlast = t[0]
+        pX[0 + n] = px[n] = x0[n]
+    tlast = pt[0]
 
     # Main loop
     for m in range(1, M):
@@ -39,6 +40,6 @@ cpdef accum(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
         func(px, tlast, pdxdt)
         for n in range(N):
             px[n] += pdxdt[n] * dt
-            X[m, n] = px[n]
+            pX[m*N + n] = px[n]
         tlast = tcur
     return X

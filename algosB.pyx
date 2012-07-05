@@ -19,11 +19,11 @@ cdef class ODES:
 
     cpdef accum(self, np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
 
-        cdef int m, N, M
+        cdef int n, m, N, M
         cdef np.ndarray[DTYPE_t, ndim=2] X
         cdef np.ndarray[DTYPE_t, ndim=1] x
         cdef np.ndarray[DTYPE_t, ndim=1] dxdt
-        cdef double dt, tcur, tlast, *px, *pt, *pdxdt
+        cdef double dt, tcur, tlast, *px, *pt, *pdxdt, *pX
 
         N = len(x0)
         M = len(t)
@@ -35,10 +35,11 @@ cdef class ODES:
         px = <double*>x.data
         pt = <double*>t.data
         pdxdt = <double*>dxdt.data
+        pX = <double*>X.data
 
         # Pre-loop setup
         for n in range(N):
-            X[0, n] = px[n] = x0[n]
+            pX[0 + n] = px[n] = <double>x0[n]
         tlast = t[0]
 
         # Main loop
@@ -48,7 +49,7 @@ cdef class ODES:
             self.func(x, tlast, dxdt)
             for n in range(N):
                 px[n] += pdxdt[n] * dt
-                X[m, n] = px[n]
+                pX[m*N + n] = px[n]
             tlast = tcur
         return X
 
