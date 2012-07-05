@@ -4,11 +4,10 @@ from distutils.extension import Extension
 from Cython.Distutils import build_ext
 import numpy
 
-ext_modules = [
-    Extension('algos2', ['algos2.pyx'], include_dirs=[numpy.get_include()]),
-    Extension('algos3', ['algos3.pyx'], include_dirs=[numpy.get_include()]),
-    Extension('algos4', ['algos4.pyx'], include_dirs=[numpy.get_include()]),
-]
+def ext(name):
+    return Extension(name, [name + '.pyx'], include_dirs=[numpy.get_include()])
+
+ext_modules = [ext(name) for name in 'algos2', 'algos3', 'algos4', 'algos5']
 
 setup(
     ext_modules=ext_modules,

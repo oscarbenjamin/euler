@@ -26,7 +26,7 @@ cpdef accum(f, np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
     for m in range(1, M):
         tcur = t[m]
         dt = tcur - tlast
-        func(x, tlast, dxdt)
+        f(x, tlast, dxdt)
         x += dxdt * dt
         X[m, :] = x
         tlast = tcur
