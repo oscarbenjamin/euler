@@ -33,12 +33,12 @@ cpdef accum(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
         dt = tcur - tlast
         func(px, tlast, pdxdt)
         for n in range(N):
-            x[n] += pdxdt[n] * dt
-            X[m, n] = x[n]
+            px[n] += pdxdt[n] * dt
+            X[m, n] = px[n]
         tlast = tcur
     return X
 
 # This one is used by the accum function defined above
-cdef func(double* x, double t, double* dxdt):
+cdef void func(double* x, double t, double* dxdt):
     dxdt[0] = x[1]
     dxdt[1] = - x[0]

@@ -9,7 +9,7 @@ def ext(name):
 
 ext_names = ['algos2', 'algos3', 'algos4', 'algos5',
              'algos6', 'algos7', 'algos8', 'algos9',
-             'algosA']
+             'algosA', 'algosB']
 ext_modules = [ext(name) for name in ext_names]
 
 setup(

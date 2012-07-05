@@ -15,7 +15,7 @@ cdef class ODES:
         self._func(<double*>x.data, t, <double*>dxdt.data)
         return dxdt
 
-    cdef _func(self, double* x, double t, double* dxdt):
+    cdef void _func(self, double* x, double t, double* dxdt):
         dxdt[0] = x[1]
         dxdt[1] = - x[0]
 
@@ -49,8 +49,8 @@ cdef class ODES:
             dt = tcur - tlast
             self._func(px, tlast, pdxdt)
             for n in range(N):
-                x[n] += pdxdt[n] * dt
-                X[m, n] = x[n]
+                px[n] += pdxdt[n] * dt
+                X[m, n] = px[n]
             tlast = tcur
         return X
 

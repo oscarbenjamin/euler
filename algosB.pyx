@@ -10,10 +10,9 @@ cdef inline func(double* x, double t, double* dxdt):
 
 cdef class ODES:
 
-    def func(self, np.ndarray[DTYPE_t, ndim=1] x, double t,
-                   np.ndarray[DTYPE_t, ndim=1] dxdt):
+    cdef void func(self, np.ndarray[DTYPE_t, ndim=1] x, double t,
+                         np.ndarray[DTYPE_t, ndim=1] dxdt):
         self._func(<double*>x.data, t, <double*>dxdt.data)
-        return dxdt
 
     cdef void _func(self, double* x, double t, double* dxdt):
         raise NotImplementedError
@@ -46,7 +45,7 @@ cdef class ODES:
         for m in range(1, M):
             tcur = pt[m]
             dt = tcur - tlast
-            self._func(px, tlast, pdxdt)
+            self.func(x, tlast, dxdt)
             for n in range(N):
                 px[n] += pdxdt[n] * dt
                 X[m, n] = px[n]
