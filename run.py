@@ -7,12 +7,12 @@ import sys
 
 from pylab import *
 
-import algos1, algos2, algos3, algos4, algos5
+import algos1, algos2, algos3, algos4, algos5, algos6
 
 x0 = array([0., 1.])
 t = arange(0, 10, 0.01)
 
-setup = 'from __main__ import algos1, algos2, algos3, algos4, algos5, x0, t'
+setup = 'from __main__ import algos1, algos2, algos3, algos4, algos5, algos6, x0, t'
 
 statements = [
     'algos1.accum(algos1.func, x0, t)',
@@ -26,6 +26,7 @@ statements = [
     'algos3.accum(algos3.func, x0, t)',
     'algos4.accum(x0, t)',
     'algos5.accum(x0, t)',
+    'algos6.accum(x0, t)',
 ]
 
 args = sys.argv[1:]
