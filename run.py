@@ -7,19 +7,24 @@ import sys
 
 from pylab import *
 
-import algos1, algos2, algos3
+import algos1, algos2, algos3, algos4
 
 x0 = array([0., 1.])
 t = arange(0, 10, 0.01)
 
-setup = 'from __main__ import algos1, algos2, algos3, x0, t'
+setup = 'from __main__ import algos1, algos2, algos3, algos4, x0, t'
 
 statements = [
     'algos1.accum(algos1.func, x0, t)',
     'algos1.accum(algos2.func, x0, t)',
+    'algos1.accum(algos3.func, x0, t)',
     'algos2.accum(algos1.func, x0, t)',
     'algos2.accum(algos2.func, x0, t)',
-    'algos3.accum(x0, t)',
+    'algos2.accum(algos3.func, x0, t)',
+    'algos3.accum(algos1.func, x0, t)',
+    'algos3.accum(algos2.func, x0, t)',
+    'algos3.accum(algos3.func, x0, t)',
+    'algos4.accum(x0, t)',
 ]
 
 args = sys.argv[1:]
@@ -35,7 +40,7 @@ if not args:
 
 # Plot the results from executing a particular statement
 elif len(args) == 1:
-    stmt = statements[int(args[0])]
+    stmt = statements[int(args[0]) + 1]
     print stmt
     X = eval(stmt)
     plot(t, X)
