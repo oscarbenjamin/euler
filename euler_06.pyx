@@ -1,10 +1,13 @@
 
+cimport cython
 import numpy as np
 cimport numpy as np
 
 ctypedef np.float64_t DTYPE_t
 
-cpdef accum(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cpdef euler(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
     cdef int n, m, N, M
     cdef np.ndarray[DTYPE_t, ndim=2] X
     cdef np.ndarray[DTYPE_t, ndim=1] x, dxdt
@@ -33,7 +36,12 @@ cpdef accum(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
         tlast = tcur
     return X
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cpdef func(np.ndarray[DTYPE_t, ndim=1] x, double t,
            np.ndarray[DTYPE_t, ndim=1] dxdt):
-    dxdt[0] = x[1]
-    dxdt[1] = - x[0]
+    cdef double *px, *pdxdt
+    px = <double*>x.data
+    pdxdt = <double*>dxdt.data
+    pdxdt[0] = px[1]
+    pdxdt[1] = - px[0]

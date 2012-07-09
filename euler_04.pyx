@@ -4,7 +4,7 @@ cimport numpy as np
 
 ctypedef np.float64_t DTYPE_t
 
-cpdef accum(f, np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
+cpdef euler(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
     cdef int n, m, N, M
     cdef np.ndarray[DTYPE_t, ndim=2] X
     cdef np.ndarray[DTYPE_t, ndim=1] x, dxdt
@@ -26,7 +26,7 @@ cpdef accum(f, np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
     for m in range(1, M):
         tcur = t[m]
         dt = tcur - tlast
-        f(x, tlast, dxdt)
+        func(x, tlast, dxdt)
         for n in range(N):
             x[n] += dxdt[n] * dt
             X[m, n] = x[n]

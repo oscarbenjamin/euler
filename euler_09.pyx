@@ -3,22 +3,23 @@ cimport numpy as np
 
 ctypedef np.float64_t DTYPE_t
 
-# This one is used by the accum function defined above
+# This one is used by the euler function defined above
 cdef inline func(double* x, double t, double* dxdt):
     dxdt[0] = x[1]
     dxdt[1] = - x[0]
 
 cdef class ODES:
 
-    cdef func(self, np.ndarray[DTYPE_t, ndim=1] x, double t,
-                    np.ndarray[DTYPE_t, ndim=1] dxdt):
+    def func(self, np.ndarray[DTYPE_t, ndim=1] x, double t,
+                   np.ndarray[DTYPE_t, ndim=1] dxdt):
         self._func(<double*>x.data, t, <double*>dxdt.data)
         return dxdt
 
     cdef void _func(self, double* x, double t, double* dxdt):
-        raise NotImplementedError
+        dxdt[0] = x[1]
+        dxdt[1] = - x[0]
 
-    cpdef accum(self, np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
+    cpdef euler(self, np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
 
         cdef int n, m, N, M
         cdef np.ndarray[DTYPE_t, ndim=2] X
@@ -47,18 +48,12 @@ cdef class ODES:
         for m in range(1, M):
             tcur = pt[m]
             dt = tcur - tlast
-            self.func(x, tlast, dxdt)
+            self._func(px, tlast, pdxdt)
             for n in range(N):
                 px[n] += pdxdt[n] * dt
                 pX[m*N + n] = px[n]
             tlast = tcur
         return X
 
-cdef class ODES_sub(ODES):
-
-    cdef void _func(self, double* x, double t, double* dxdt):
-        dxdt[0] = x[1]
-        dxdt[1] = - x[0]
-
-def accum(x0, t):
-    return ODES_sub().accum(x0, t)
+def euler(x0, t):
+    return ODES().euler(x0, t)

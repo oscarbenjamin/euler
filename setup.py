@@ -7,9 +7,9 @@ import numpy
 def ext(name):
     return Extension(name, [name + '.pyx'], include_dirs=[numpy.get_include()])
 
-ext_names = ['algos2', 'algos3', 'algos4', 'algos5',
-             'algos6', 'algos7', 'algos8', 'algos9',
-             'algosA', 'algosB', 'algosC']
+ext_names = ['euler_02', 'euler_03', 'euler_04', 'euler_05',
+             'euler_06', 'euler_07', 'euler_08', 'euler_09',
+             'euler_10', 'euler_11', 'euler_12']
 ext_modules = [ext(name) for name in ext_names]
 
 setup(
