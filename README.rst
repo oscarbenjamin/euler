@@ -106,6 +106,7 @@ To test the performance of all of the implementations, do::
     stmt: euler_11.euler(x0, t)                     t: 1494 usecs
     stmt: euler_12.euler(x0, t)                     t: 40 usecs
     stmt: euler_13.euler(x0, t)                     t: 4531 usecs
+    stmt: euler_14.euler(x0, t)                     t: 2811 usecs
 
 My interpretation of the above performance differences is as follows:
 
@@ -178,12 +179,20 @@ intended flexibility that a user can override the methods in either python
 or cython. It is, however, unfortunate to have to subclass a different
 type and override a different method. Also if there would be subclasses of
 `ODES`, then each would need a corresponding `py` variant to be usable
-from pure python.  13.  `euler_13` demonstrates subclassing `pyODES` from
+from pure python.
+
+13.  `euler_13` demonstrates subclassing `pyODES` from
 `euler_12`. The performance is better than the pure python `euler_01` by a
 factor of about 3 Performance is not really a concern if the user is
 operating in pure python but it's good to know that we haven't incurred a
 penalty for the pure python mode by introducing all of the cython
 infrastructure.
+
+14.  `euler_14` demonstrates subclassing `ODES` from
+`euler_11`. The performance is better than the pure python `euler_13` by a
+factor of about 2. So using `cpdef` functions can provide better performance
+for the pure python mode of sublcassing `ODES` at the expense of a 30-40 times
+penalty for cython code.
 
 Conclusion
 ----------
@@ -206,10 +215,13 @@ efficient as a c-style array, I could try that with a `cpdef` function to see
 what the performance difference would be compared with `euler_12`. If it could
 perform as well then I would have the flexibility of being able to subclass
 the same methods of the same class in both cython and python while also having
-the performance of `euler_12` in the pure cython case.
+the performance of `euler_12` in the pure cython case. Also the difference in
+performance between `euler_13` and `euler_14` suggests that using `cpdef`
+functions might be more efficient in the pure python case.
 
 As it stands the performance difference between `cpdef` with `numpy.ndarray`
-is too big to be sacrificed in favour of the flexibility that `cpdef` would
-give. If I can replicate those gains with a custom array type, then I will use
-that. Otherwise I will stick with `euler_12` and have two different classes,
-one to subclass from pure python and the other from cython.
+and `cdef` with `double` pointers is too big to be sacrificed in favour of the
+flexibility that `cpdef` would give. If I can replicate those gains with a
+custom array type, then I will use that. Otherwise I will stick with
+`euler_12` and have two different classes, one to subclass from pure python
+and the other from cython.

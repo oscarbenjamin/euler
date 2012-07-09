@@ -9,7 +9,7 @@ from pylab import *
 
 import euler_01, euler_02, euler_03, euler_04, euler_05
 import euler_06, euler_07, euler_08, euler_09, euler_10
-import euler_11, euler_12, euler_13
+import euler_11, euler_12, euler_13, euler_14
 
 x0 = array([0., 1.])
 t = arange(0, 10, 0.01)
@@ -18,7 +18,7 @@ setup = '''
 from __main__ import (euler_01, euler_02, euler_03, euler_04,
                       euler_05, euler_06, euler_07, euler_08,
                       euler_09, euler_10, euler_11, euler_12,
-                      euler_13, x0, t)
+                      euler_13, euler_14, x0, t)
 '''
 
 statements = [
@@ -35,6 +35,7 @@ statements = [
     'euler_11.euler(x0, t)',
     'euler_12.euler(x0, t)',
     'euler_13.euler(x0, t)',
+    'euler_14.euler(x0, t)',
 ]
 
 args = sys.argv[1:]

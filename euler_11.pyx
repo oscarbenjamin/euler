@@ -8,7 +8,6 @@ cdef class ODES:
     cpdef func(self, np.ndarray[DTYPE_t, ndim=1] x, double t,
                      np.ndarray[DTYPE_t, ndim=1] dxdt):
         self._func(<double*>x.data, t, <double*>dxdt.data)
-        return dxdt
 
     cdef void _func(self, double* x, double t, double* dxdt):
         raise NotImplementedError
