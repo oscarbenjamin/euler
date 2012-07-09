@@ -3,11 +3,6 @@ cimport numpy as np
 
 ctypedef np.float64_t DTYPE_t
 
-# This one is used by the euler function defined above
-cdef inline func(double* x, double t, double* dxdt):
-    dxdt[0] = x[1]
-    dxdt[1] = - x[0]
-
 cdef class ODES:
 
     def func(self, np.ndarray[DTYPE_t, ndim=1] x, double t,

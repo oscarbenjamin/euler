@@ -26,7 +26,7 @@ cpdef euler(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
     # Pre-loop setup
     for n in range(N):
         pX[0 + n] = px[n] = <double>x0[n]
-    tlast = t[0]
+    tlast = pt[0]
 
     # Main loop
     for m in range(1, M):

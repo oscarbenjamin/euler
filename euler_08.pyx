@@ -3,11 +3,6 @@ cimport numpy as np
 
 ctypedef np.float64_t DTYPE_t
 
-# This one is used by the euler function defined above
-cdef inline void func(double* x, double t, double* dxdt):
-    dxdt[0] = x[1]
-    dxdt[1] = - x[0]
-
 cpdef euler(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
 
     cdef int n, m, N, M
@@ -30,7 +25,7 @@ cpdef euler(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
 
     # Pre-loop setup
     for n in range(N):
-        pX[0 + n] = px[n] = x0[n]
+        pX[0 + n] = px[n] = <double>x0[n]
     tlast = pt[0]
 
     # Main loop
@@ -42,4 +37,11 @@ cpdef euler(np.ndarray[DTYPE_t, ndim=1] x0, np.ndarray[DTYPE_t, ndim=1] t):
             px[n] += pdxdt[n] * dt
             pX[m*N + n] = px[n]
         tlast = tcur
+
+    # Final result
     return X
+
+# This one is used by the euler function defined above
+cdef inline void func(double* x, double t, double* dxdt):
+    dxdt[0] = x[1]
+    dxdt[1] = - x[0]
