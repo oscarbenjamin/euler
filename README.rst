@@ -343,3 +343,38 @@ to boost cython performance by a factor of 3 in this test.
 As for `euler_17`, I am less in favour of introducing the `item`/`itemset`
 functions in replacement of indexing than I am about creating redundant
 classes just for performance reasons as is the case with `euler_19`.
+
+Linux
+-----
+
+Timings on Linux::
+
+    $ ./run.py
+    stmt: euler_01.euler(euler_01.func, x0, t)      t: 11146 usecs
+    stmt: euler_02.euler(euler_02.func, x0, t)      t: 12723 usecs
+    stmt: euler_03.euler(euler_03.func, x0, t)      t: 2623 usecs
+    stmt: euler_04.euler(x0, t)                     t: 1287 usecs
+    stmt: euler_05.euler(x0, t)                     t: 1307 usecs
+    stmt: euler_06.euler(x0, t)                     t: 1228 usecs
+    stmt: euler_07.euler(x0, t)                     t: 22 usecs
+    stmt: euler_08.euler(x0, t)                     t: 23 usecs
+    stmt: euler_09.euler(x0, t)                     t: 23 usecs
+    stmt: euler_10.euler(x0, t)                     t: 22 usecs
+    stmt: euler_11.euler(x0, t)                     t: 1469 usecs
+    stmt: euler_12.euler(x0, t) # py - euler_11     t: 2905 usecs
+    stmt: euler_13.euler(x0, t)                     t: 23 usecs
+    stmt: euler_14.euler(x0, t) # py - euler_13     t: 4132 usecs
+    stmt: euler_15.euler(x0, t)                     t: 162 usecs
+    stmt: euler_16.euler(x0, t) # py - euler_15     t: 748 usecs
+    stmt: euler_17.euler(x0, t)                     t: 33 usecs
+    stmt: euler_18.euler(x0, t) # py - euler_17     t: 765 usecs
+    stmt: euler_19.euler(x0, t)                     t: 23 usecs
+    stmt: euler_20.euler(x0, t) # py - euler_19     t: 1164 usecs
+
+Notes on the above:
+
+1. `euler_19` achieves the same speed as `euler_07`. Apparently there is no
+penalty in using the cython vtable here.
+
+2. The cython performance penalty for using `euler_15` over `eulerr_17` is a
+factor of 8 here.
