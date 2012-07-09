@@ -185,4 +185,31 @@ operating in pure python but it's good to know that we haven't incurred a
 penalty for the pure python mode by introducing all of the cython
 infrastructure.
 
+Conclusion
+----------
 
+My interpretation of the above results is that the problem is really to do
+with using `numpy.ndarray`. I think this point is demonstrated in the
+performance difference between `euler_10` and `euler_11`. The only difference
+between these two is that in `euler_11` I am calling through a `cpdef`
+function that takes statically typed `numpy.ndarrays`. The cost of doing this
+is comparable to each of the implementations that doesn't just work with
+`double` pointers. It is possible, however, that the cost is really to do with
+entering a `cpdef` function, although since I'm calling it from cython that
+should (theoretically) be okay.
+
+I can achieve much greater performance with functions that just use `double`
+pointers. Unfortunately I cannot statically type the arguments of a `cpdef`
+function to use `double` pointers as there is no corresponding python
+alternative. If I had an alternative array implementation that was as
+efficient as a c-style array, I could try that with a `cpdef` function to see
+what the performance difference would be compared with `euler_12`. If it could
+perform as well then I would have the flexibility of being able to subclass
+the same methods of the same class in both cython and python while also having
+the performance of `euler_12` in the pure cython case.
+
+As it stands the performance difference between `cpdef` with `numpy.ndarray`
+is too big to be sacrificed in favour of the flexibility that `cpdef` would
+give. If I can replicate those gains with a custom array type, then I will use
+that. Otherwise I will stick with `euler_12` and have two different classes,
+one to subclass from pure python and the other from cython.
