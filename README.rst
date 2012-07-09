@@ -280,3 +280,33 @@ The disadvantage of this approach is that the `itemset` and `item` methods are
 incompatible with any other `Array` API. The resulting functions will not be
 transparently applicable to `numpy.ndarray` or any other type that we decide
 to place there.
+
+Update 3
+--------
+
+Using the extension `Array` class in `euler_12` can give a boost to the pure
+python performance. Now the best performers are:
+
+`euler_15`: 174us and 598us
+`euler_17`: 57us and 564us
+`euler_19`: 40us and 833us
+
+The advantages and disadvantages from a coding perspective are as follows.
+
+`euler_15` allows the user to subclass the same type from cython or python and
+override the same method with no need to change any of the syntax used in
+order to achieve the level of performance reported above.
+
+`euler_17` achieves better performance in the cython case at the expense of
+requiring users to use a slightly awkward syntax in order to achieve the best
+performance in cython. The best cython performance is several times better
+than `euler_15` but about 50% slower than `euler_19`.
+
+`euler_19` achieves the best performance in the cython case at a roughly 50%
+performance penalty in the python case. It is fiddly to code as it requires a
+separate `py` class for every extension type so that it can be overridden from
+python without impacting in the performance when it is overridden from cython.
+
+
+
+
