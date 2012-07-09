@@ -112,67 +112,81 @@ To test the performance of all of the implementations, do::
     stmt: euler_12.euler(x0, t)                     t: 40 usecs
     stmt: euler_13.euler(x0, t)                     t: 4531 usecs
 
-My interpretation of the above performance differences is as follows.
+My interpretation of the above performance differences is as follows::
 
-1. `euler_01` is a pure python implementation and takes 15 millisseconds to
-run the test.
-2. `euler_02` reimplements `euler_01` in cython using `cpdef` functions with
-and static typing. The function `func` is passed as an argument to the
-`euler_02.euler` function. This means that, although it is implemented in c,
-`func` is called through its python interface. The overhead of calling into a
-`cpdef` function through its python interface actually increases the time
-taken to around 17 milliseconds.
-3. `euler_03` improves on `euler_02` by eliminating the creation of temparoray
-arrays and performing all array assignments with `cdef`'d integers. This
-brings the total running time down to about 3 milliseconds which is a factor
-of 5 improvement over the original pure python implementation.
-4. `euler_04` sacrifices the flexibility of being able to pass in any function
-you like by explicitly calling `func` from the `euler` routine. This ensures
-that the `cpdef` function is always called via its c interface and cuts the
-running time by a further 50% (factor of 10 improvement over pure python).
-5. `euler_05` attempts to improve performance by using disabling `wraparound`
-and `boundscheck` in the generated cython code. Unfortunately this only gives
-a small improvement.
-6. `euler_06` attempts to improve on the performance of `euler_05` by
-extracting the data pointer from the numpy array in `func` before assigning to
-it. This results in only a very small improvement.
-7. `euler_07` uses `cdef` functions and `double` pointers everywhere and
-the `cdef`'d `euler` routine explicitly calls the `cdef`'d `func` routine.
-This results in a massive performance boost. The time taken is now 30
-microseconds, which is 50 times faster than `euler_08` and 500 times faster
-than pure python. This is probably close to the performance that would be
-available in pure c. This does, however, make it impossible for a user to
-supply their own `func` to the library.
-8. `euler_08` attempts to go even further by making `func` an inline function.
-This actually incurs a small performance penalty.
-9. `euler_09` defines an extension type `ODES` with methods `euler` and
-`_func`. This enables `_func` to be customised by subclassing `ODES` in
-another cython module. This incurs a 33% increase in running time relative to
-the super-fast `euler_07`.
-10. `euler_10` is the same as `euler_09` but shows the performance when
-running with a subclass of `ODES` as a library user would. This has a roughly
-50% overhead compared to `euler_07`.
-11. `euler_11` attempts to make the more efficient `euler_07-10`
-implementations more flexible, by adding a `cpdef` function `func` that can be
-overridden by subclassing in pure python. The default implementation of `func`
-calls into a `cdef` function `_func` that can only be overridden by
-subclassing in cython code. This makes it possible to subclass in python or
-cython and override `func` or `_func` respectively. Unfortunately, the
-overhead of calling into the `cpdef`'d function `func` reduces performance
-massively.
-12. `euler_12` achieves the same flexibility as `euler_11` without the
-performance cost by creating two extension types. A user who wants to write
-something in pure python must subclass `pyODES` instead of `ODES` and override
-`func` instead of `_func`. The performance of this variant is about 33% worse
-than the fastest version `euler_07` while keeping the intended flexibility
-that a user can override the methods in either python or cython. It is,
-however, unfortunate to have to subclass a different type and override a
-different method. Also if there would be subclasses of `ODES`, then each would
-need a corresponding `py` variant to be usable from pure python.
-13. `euler_13` demonstrates subclassing `pyODES` from `euler_12`. The
-performance is better than the pure python `euler_01` by a factor of about 3
-Performance is not really a concern if the user is operating in pure python
-but it's good to know that we haven't incurred a penalty for the pure python
-mode by introducing all of the cython infrastructure.
+    1.  `euler_01` is a pure python implementation and takes 15 millisseconds
+    to run the test.
+    
+    2.  `euler_02` reimplements `euler_01` in cython using `cpdef` functions
+    with and static typing. The function `func` is passed as an argument to
+    the `euler_02.euler` function. This means that, although it is implemented
+    in c, `func` is called through its python interface. The overhead of
+    calling into a `cpdef` function through its python interface actually
+    increases the time taken to around 17 milliseconds.
+    
+    3.  `euler_03` improves on `euler_02` by eliminating the creation of
+    temparoray arrays and performing all array assignments with `cdef`'d
+    integers. This brings the total running time down to about 3 milliseconds
+    which is a factor of 5 improvement over the original pure python
+    implementation.
+    
+    4.  `euler_04` sacrifices the flexibility of being able to pass in any
+    function you like by explicitly calling `func` from the `euler` routine.
+    This ensures that the `cpdef` function is always called via its c
+    interface and cuts the running time by a further 50% (factor of 10
+    improvement over pure python).
+    
+    5.  `euler_05` attempts to improve performance by using disabling
+    `wraparound` and `boundscheck` in the generated cython code. Unfortunately
+    this only gives a small improvement.
+    
+    6.  `euler_06` attempts to improve on the performance of `euler_05` by
+    extracting the data pointer from the numpy array in `func` before
+    assigning to it. This results in only a very small improvement.
+    
+    7.  `euler_07` uses `cdef` functions and `double` pointers everywhere and
+    the `cdef`'d `euler` routine explicitly calls the `cdef`'d `func` routine.
+    This results in a massive performance boost. The time taken is now 30
+    microseconds, which is 50 times faster than `euler_08` and 500 times
+    faster than pure python. This is probably close to the performance that
+    would be available in pure c. This does, however, make it impossible for a
+    user to supply their own `func` to the library.
+    
+    8.  `euler_08` attempts to go even further by making `func` an inline
+    function.  This actually incurs a small performance penalty.
+    
+    9.  `euler_09` defines an extension type `ODES` with methods `euler` and
+    `_func`. This enables `_func` to be customised by subclassing `ODES` in
+    another cython module. This incurs a 33% increase in running time relative
+    to the super-fast `euler_07`.
+    
+    10. `euler_10` is the same as `euler_09` but shows the performance when
+    running with a subclass of `ODES` as a library user would. This has a
+    roughly 50% overhead compared to `euler_07`.
+    
+    11.  `euler_11` attempts to make the more efficient `euler_07-10`
+    implementations more flexible, by adding a `cpdef` function `func` that
+    can be overridden by subclassing in pure python. The default
+    implementation of `func` calls into a `cdef` function `_func` that can
+    only be overridden by subclassing in cython code. This makes it possible
+    to subclass in python or cython and override `func` or `_func`
+    respectively. Unfortunately, the overhead of calling into the `cpdef`'d
+    function `func` reduces performance massively.
+    
+    12.  `euler_12` achieves the same flexibility as `euler_11` without the
+    performance cost by creating two extension types. A user who wants to
+    write something in pure python must subclass `pyODES` instead of `ODES`
+    and override `func` instead of `_func`. The performance of this variant is
+    about 33% worse than the fastest version `euler_07` while keeping the
+    intended flexibility that a user can override the methods in either python
+    or cython. It is, however, unfortunate to have to subclass a different
+    type and override a different method. Also if there would be subclasses of
+    `ODES`, then each would need a corresponding `py` variant to be usable
+    from pure python.  13.  `euler_13` demonstrates subclassing `pyODES` from
+    `euler_12`. The performance is better than the pure python `euler_01` by a
+    factor of about 3 Performance is not really a concern if the user is
+    operating in pure python but it's good to know that we haven't incurred a
+    penalty for the pure python mode by introducing all of the cython
+    infrastructure.
 
 
