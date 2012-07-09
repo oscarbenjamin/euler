@@ -109,6 +109,8 @@ To test the performance of all of the implementations, do::
     stmt: euler_14.euler(x0, t) # py - euler_11     t: 2785 usecs
     stmt: euler_15.euler(x0, t)                     t: 172 usecs
     stmt: euler_16.euler(x0, t) # py - euler_15     t: 550 usecs
+    stmt: euler_17.euler(x0, t)                     t: 52 usecs
+    stmt: euler_18.euler(x0, t) # py - euler_17     t: 539 usecs
 
 My interpretation of the above performance differences is as follows:
 
@@ -207,6 +209,14 @@ from pure python. The performance is 30 times better than the original all
 python `euler_01` and 4 times better than the next best python subclass
 `euler_14`.
 
+17  `euler_17` improves on `euler_15`'s cython performance by adding `set` and
+`get` methods to the `Array` extension type. These `cdef` methods are able to
+ourperform the special methods `__getitem__` and `__setitem__` for which it is
+not possible to set a return type.
+
+18.  `euler_18` should be the same as `euler_16` but using the `euler_18`
+module.
+
 Conclusion
 ----------
 
@@ -256,3 +266,17 @@ python defined functions respectively.
 
 Using `cpdef` functions makes `euler_15` faster from python but slower from
 cython. Perhaps the performance of indexing the array class can be improved.
+
+Update 2
+--------
+
+Having tested `euler_17`, I can see that we can get a performance within a
+factor of 2 of the best performance by using the `cdef` methods `item` and
+`itemset` instead of indexing the `Array` type. This improves substantially on
+`euler_15` for these simple cases as an optional speedup for those who are
+prepared to use special methods instead of indexing into the array.
+
+The disadvantage of this approach is that the `itemset` and `item` methods are
+incompatible with any other `Array` API. The resulting functions will not be
+transparently applicable to `numpy.ndarray` or any other type that we decide
+to place there.
