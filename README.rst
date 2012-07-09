@@ -28,7 +28,6 @@ Outline
 -------
 
 The first attempt is in pure python and looks like::
-    :language: python
 
     # euler_01.py
     import numpy as np
@@ -58,7 +57,6 @@ Simple Harmonic Motion. The function `euler` will perform forward Euler
 integration of the function to produce an array `X` representing the state of
 the system at times corresponding to the elements of `t`. We can run this with
 a script like::
-    :language: python
 
     # script.py
 
@@ -83,19 +81,16 @@ Files
 
 The files `euler_N.{py|pyx}` in this repo represent different attempts at
 achieving this. To build all of the cython extension modules run::
-    :language: terminal
 
     $ python setup.py build_ext --inplace
 
 To test the `euler_08` implementation do::
-    :language: terminal
 
     $ python run.py 08
 
 which will plot the results using matplotlib.
 
 To test the performance of all of the implementations, do::
-    :language: terminal
 
     $ ./run.py
     stmt: euler_01.euler(euler_01.func, x0, t)      t: 14574 usecs
