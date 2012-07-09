@@ -93,20 +93,22 @@ which will plot the results using matplotlib.
 To test the performance of all of the implementations, do::
 
     $ ./run.py
-    stmt: euler_01.euler(euler_01.func, x0, t)      t: 14574 usecs
-    stmt: euler_02.euler(euler_02.func, x0, t)      t: 16826 usecs
-    stmt: euler_03.euler(euler_03.func, x0, t)      t: 3118 usecs
-    stmt: euler_04.euler(x0, t)                     t: 1693 usecs
-    stmt: euler_05.euler(x0, t)                     t: 1512 usecs
-    stmt: euler_06.euler(x0, t)                     t: 1491 usecs
-    stmt: euler_07.euler(x0, t)                     t: 29 usecs
-    stmt: euler_08.euler(x0, t)                     t: 31 usecs
-    stmt: euler_09.euler(x0, t)                     t: 41 usecs
-    stmt: euler_10.euler(x0, t)                     t: 44 usecs
-    stmt: euler_11.euler(x0, t)                     t: 1494 usecs
-    stmt: euler_12.euler(x0, t)                     t: 40 usecs
-    stmt: euler_13.euler(x0, t)                     t: 4531 usecs
-    stmt: euler_14.euler(x0, t)                     t: 2811 usecs
+    stmt: euler_01.euler(euler_01.func, x0, t)      t: 14503 usecs
+    stmt: euler_02.euler(euler_02.func, x0, t)      t: 16291 usecs
+    stmt: euler_03.euler(euler_03.func, x0, t)      t: 2837 usecs
+    stmt: euler_04.euler(x0, t)                     t: 1470 usecs
+    stmt: euler_05.euler(x0, t)                     t: 1444 usecs
+    stmt: euler_06.euler(x0, t)                     t: 1381 usecs
+    stmt: euler_07.euler(x0, t)                     t: 30 usecs
+    stmt: euler_08.euler(x0, t)                     t: 29 usecs
+    stmt: euler_09.euler(x0, t)                     t: 42 usecs
+    stmt: euler_10.euler(x0, t)                     t: 38 usecs
+    stmt: euler_11.euler(x0, t)                     t: 1416 usecs
+    stmt: euler_12.euler(x0, t)                     t: 39 usecs
+    stmt: euler_13.euler(x0, t) # py - euler_12     t: 4472 usecs
+    stmt: euler_14.euler(x0, t) # py - euler_11     t: 2785 usecs
+    stmt: euler_15.euler(x0, t)                     t: 172 usecs
+    stmt: euler_16.euler(x0, t) # py - euler_15     t: 550 usecs
 
 My interpretation of the above performance differences is as follows:
 
@@ -194,6 +196,17 @@ factor of about 2. So using `cpdef` functions can provide better performance
 for the pure python mode of sublcassing `ODES` at the expense of a 30-40 times
 penalty for cython code.
 
+15.  `euler_15` demonstrates using a custom array class in place of
+`numpy.ndarray`. This enables us to improve performance without sacrificing
+the flexibility of `cpdef`. This gives an improvement of a factor of around 8
+compared to the other `euler_11`. It is still 4 times as expensive as
+`euler_12`.
+
+16.  `euler_16` shows what happens if the `ODES` extension type if subclassed
+from pure python. The performance is 30 times better than the original all
+python `euler_01` and 4 times better than the next best python subclass
+`euler_14`.
+
 Conclusion
 ----------
 
@@ -225,3 +238,21 @@ flexibility that `cpdef` would give. If I can replicate those gains with a
 custom array type, then I will use that. Otherwise I will stick with
 `euler_12` and have two different classes, one to subclass from pure python
 and the other from cython.
+
+Update
+------
+
+Having tested a custom array class in `euler_15` I can see that the
+performance definitely is much better than using `numpy.ndarray`. `euler_15`
+outperforms `euler_11` by a factor of more than 10 and the only difference is
+the use of the custom cython extension `Array` type as the data type to pass
+into `func`. With this the choice becomes between `euler_12`'s less elegant
+two class solution and `euler_15`'s slower but more elegant code.
+
+`euler_12` gives us performance of 40 and 4500 micorseconds for cython and
+python defined functions respectively.
+
+`euler_15` gives us performance of 172 and 550 microseconds for the two cases.
+
+Using `cpdef` functions makes `euler_15` faster from python but slower from
+cython. Perhaps the performance of indexing the array class can be improved.
