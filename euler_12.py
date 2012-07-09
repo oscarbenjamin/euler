@@ -1,11 +1,11 @@
 
 import numpy as np
-import euler_12
+import euler_11
 
-class pyODES_sub(euler_12.pyODES):
+class ODES_sub(euler_11.ODES):
     def func(self, x, t, dxdt):
         dxdt[0] = x[1]
         dxdt[1] = - x[0]
 
 def euler(x0, t):
-    return pyODES_sub().euler(x0, t)
+    return ODES_sub().euler(x0, t)

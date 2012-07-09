@@ -31,11 +31,6 @@ cdef class Array:
         data_list = [self.data[n] for n in range(self.length)]
         return 'Array({0!r}, {1!r})'.format(self.length, data_list)
 
-    cpdef zero_out(self):
-        cdef number i
-        for i in range(self.length):
-            self.data[i] = 0
-
     def __setitem__(self, number index, real value):
         self.data[index] = value
 

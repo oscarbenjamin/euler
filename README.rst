@@ -93,26 +93,34 @@ which will plot the results using matplotlib.
 To test the performance of all of the implementations, do::
 
     $ ./run.py
-    stmt: euler_01.euler(euler_01.func, x0, t)      t: 14503 usecs
-    stmt: euler_02.euler(euler_02.func, x0, t)      t: 16291 usecs
-    stmt: euler_03.euler(euler_03.func, x0, t)      t: 2837 usecs
-    stmt: euler_04.euler(x0, t)                     t: 1470 usecs
-    stmt: euler_05.euler(x0, t)                     t: 1444 usecs
-    stmt: euler_06.euler(x0, t)                     t: 1381 usecs
+    stmt: euler_01.euler(euler_01.func, x0, t)      t: 14382 usecs
+    stmt: euler_02.euler(euler_02.func, x0, t)      t: 16687 usecs
+    stmt: euler_03.euler(euler_03.func, x0, t)      t: 2859 usecs
+    stmt: euler_04.euler(x0, t)                     t: 1482 usecs
+    stmt: euler_05.euler(x0, t)                     t: 1448 usecs
+    stmt: euler_06.euler(x0, t)                     t: 1405 usecs
     stmt: euler_07.euler(x0, t)                     t: 30 usecs
     stmt: euler_08.euler(x0, t)                     t: 29 usecs
-    stmt: euler_09.euler(x0, t)                     t: 42 usecs
+    stmt: euler_09.euler(x0, t)                     t: 41 usecs
     stmt: euler_10.euler(x0, t)                     t: 38 usecs
-    stmt: euler_11.euler(x0, t)                     t: 1416 usecs
-    stmt: euler_12.euler(x0, t)                     t: 39 usecs
-    stmt: euler_13.euler(x0, t) # py - euler_12     t: 4472 usecs
-    stmt: euler_14.euler(x0, t) # py - euler_11     t: 2785 usecs
-    stmt: euler_15.euler(x0, t)                     t: 172 usecs
-    stmt: euler_16.euler(x0, t) # py - euler_15     t: 550 usecs
-    stmt: euler_17.euler(x0, t)                     t: 52 usecs
-    stmt: euler_18.euler(x0, t) # py - euler_17     t: 539 usecs
+    stmt: euler_11.euler(x0, t)                     t: 1424 usecs
+    stmt: euler_12.euler(x0, t) # py - euler_11     t: 2783 usecs
+    stmt: euler_13.euler(x0, t)                     t: 42 usecs
+    stmt: euler_14.euler(x0, t) # py - euler_13     t: 4537 usecs
+    stmt: euler_15.euler(x0, t)                     t: 171 usecs
+    stmt: euler_16.euler(x0, t) # py - euler_15     t: 570 usecs
+    stmt: euler_17.euler(x0, t)                     t: 55 usecs
+    stmt: euler_18.euler(x0, t) # py - euler_17     t: 556 usecs
+    stmt: euler_19.euler(x0, t)                     t: 42 usecs
+    stmt: euler_20.euler(x0, t) # py - euler_19     t: 817 usecs
 
-My interpretation of the above performance differences is as follows:
+My interpretation of the above performance differences follows. The general
+gist is that upto `euler_08` we are just trying to get the test to run as fast
+as possible. `euler_09` and `euler_10` aim to keep that speed whilst making it
+possible to set the function from user cython code by subclassing an extension
+type, bringing a 33% performance penalty. `euler_11` onwards attempt to make
+is possible to subclass in both cython and python whilst adding as little as
+possible overhead to the cython case.
 
 1.  `euler_01` is a pure python implementation and takes 15 millisseconds
 to run the test.
@@ -174,7 +182,13 @@ to subclass in python or cython and override `func` or `_func`
 respectively. Unfortunately, the overhead of calling into the `cpdef`'d
 function `func` reduces performance massively.
 
-12.  `euler_12` achieves the same flexibility as `euler_11` without the
+12.  `euler_12` demonstrates subclassing `ODES` from
+`euler_11`. The performance is better than the pure python `euler_14` by a
+factor of about 2. So using `cpdef` functions can provide better performance
+for the pure python mode of sublcassing `ODES` at the expense of a 30-40 times
+penalty for cython code.
+
+13.  `euler_13` achieves the same flexibility as `euler_11` without the
 performance cost by creating two extension types. A user who wants to
 write something in pure python must subclass `pyODES` instead of `ODES`
 and override `func` instead of `_func`. The performance of this variant is
@@ -185,18 +199,12 @@ type and override a different method. Also if there would be subclasses of
 `ODES`, then each would need a corresponding `py` variant to be usable
 from pure python.
 
-13.  `euler_13` demonstrates subclassing `pyODES` from
-`euler_12`. The performance is better than the pure python `euler_01` by a
-factor of about 3 Performance is not really a concern if the user is
-operating in pure python but it's good to know that we haven't incurred a
-penalty for the pure python mode by introducing all of the cython
-infrastructure.
-
-14.  `euler_14` demonstrates subclassing `ODES` from
-`euler_11`. The performance is better than the pure python `euler_13` by a
-factor of about 2. So using `cpdef` functions can provide better performance
-for the pure python mode of sublcassing `ODES` at the expense of a 30-40 times
-penalty for cython code.
+14.  `euler_14` demonstrates subclassing `pyODES` from
+`euler_13`. The performance is better than the pure python `euler_01` by a
+factor of about 3. The performance here is not as good as `euler_12` that
+subclasses a `cpdef` method. It is improved upon later with `euler_19` and
+`euler_20` that use a custom `Array` extension type to speed up calling into
+the python function.
 
 15.  `euler_15` demonstrates using a custom array class in place of
 `numpy.ndarray`. This enables us to improve performance without sacrificing
@@ -216,6 +224,13 @@ not possible to set a return type.
 
 18.  `euler_18` should be the same as `euler_16` but using the `euler_18`
 module.
+
+19.  `euler_19` should be the same as `euler_13`. The changes here are
+intended to improve performance when subclassing from python as in `euler_20`.
+
+20.  `euler_20` performs significantly better than `euler_14` because of the
+use of an `Array` extension type to boost performance when calling into the
+python function.
 
 Conclusion
 ----------
@@ -238,9 +253,9 @@ efficient as a c-style array, I could try that with a `cpdef` function to see
 what the performance difference would be compared with `euler_12`. If it could
 perform as well then I would have the flexibility of being able to subclass
 the same methods of the same class in both cython and python while also having
-the performance of `euler_12` in the pure cython case. Also the difference in
-performance between `euler_13` and `euler_14` suggests that using `cpdef`
-functions might be more efficient in the pure python case.
+the performance of `euler_13` in the pure cython case. Also the difference in
+performance between `euler_14` and `euler_12` suggests that using `cpdef`
+functions might be more efficient for python subclasses.
 
 As it stands the performance difference between `cpdef` with `numpy.ndarray`
 and `cdef` with `double` pointers is too big to be sacrificed in favour of the
@@ -307,6 +322,24 @@ performance penalty in the python case. It is fiddly to code as it requires a
 separate `py` class for every extension type so that it can be overridden from
 python without impacting in the performance when it is overridden from cython.
 
+Final conclusion
+----------------
 
+I will probably use the `euler_19` approach as it offers the best performance.
+Perhaps it can be augmented with bounds checking in a way that can be
+subsequently disabled.
 
+This means that everything should be defined in terms of extension types with
+`cdef` methods using `double` pointers. Enabling a library user to subclass
+from python will mean having an additional `py` class for each extension type.
+This isn't very elegant but the cython performance is paramount here.
 
+The problems that prevent me from using `euler_15` are that it is not possible
+to make `__setitem__` and `__getitem__` more efficient in cython. I think this
+is because I can't control the return types of the two functions. At least
+that's the only difference between them and `item` and `itemset` that are able
+to boost cython performance by a factor of 3 in this test.
+
+As for `euler_17`, I am less in favour of introducing the `item`/`itemset`
+functions in replacement of indexing than I am about creating redundant
+classes just for performance reasons as is the case with `euler_19`.
