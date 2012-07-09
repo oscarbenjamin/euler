@@ -136,8 +136,9 @@ improvement over pure python).
 this only gives a small improvement.
 
 6.  `euler_06` attempts to improve on the performance of `euler_05` by
-extracting the data pointer from the numpy array in `func` before
-assigning to it. This results in only a very small improvement.
+doing all of the manipulations in `euler` using `double` pointers but still
+using a `cpdef` function and `numpy.ndarray` for `func`. This results in a
+small performance increase.
 
 7.  `euler_07` uses `cdef` functions and `double` pointers everywhere and
 the `cdef`'d `euler` routine explicitly calls the `cdef`'d `func` routine.
